@@ -1,0 +1,426 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+
+:root {
+    --dark-bg: #1a1a1a;
+    --darker-bg: #141414;
+    --primary-blue: #0066cc;
+    --secondary-blue: #0099ff;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --border-color: #333333;
+    --card-bg: #202020;
+    --success-green: #00cc66;
+    --warning-orange: #ff9900;
+    --error-red: #ff3333;
+}
+
+.text{
+    color: #f6f6f6;
+}
+
+.keyword {
+    color: #569cd6;
+}
+
+.number {
+    color: #c476ff;
+}
+
+.string{
+    color: #ff9900;
+}
+
+body {
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    font-family: 'Roboto Mono', monospace;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar mejorado */
+.navbar {
+    background: var(--darker-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+}
+
+.navbar-nav {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.nav-button {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--primary-blue);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.nav-button:hover {
+    background: var(--primary-blue);
+    color: var(--text-primary);
+}
+
+/* Cards y contenedores */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.card-header {
+    background: var(--darker-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 1rem;
+}
+
+/* Editor personalizado */
+#editor {
+    background: var(--darker-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    padding: 1rem;
+    resize: none;
+}
+
+/* Tabla de tokens */
+.table {
+    color: var(--text-primary) !important;
+}
+
+.table thead th {
+    background: var(--darker-bg);
+    border-bottom: 2px solid var(--primary-blue);
+    color: var(--text-primary);
+}
+
+.table tbody tr:nth-of-type(odd) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.table td {
+    border-color: var(--border-color);
+}
+
+/* Token badges */
+.token-type {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    color: #ffffff; /* Asegurar que el texto sea blanco */
+}
+
+/* Estilos específicos para cada tipo de token */
+.token-type.CARRERA { 
+    background-color: #1a3c71; 
+    color: #ffffff;
+}
+.token-type.SEMESTRE { 
+    background-color: #1a4f32; 
+    color: #ffffff;
+}
+.token-type.CURSO { 
+    background-color: #4f3a1a; 
+    color: #ffffff;
+}
+.token-type.NOMBRE { 
+    background-color: #3d1a4f; 
+    color: #ffffff;
+}
+.token-type.AREA { 
+    background-color: #4f1a1a; 
+    color: #ffffff;
+}
+.token-type.PRERREQUISITOS { 
+    background-color: #1a4f4f; 
+    color: #ffffff;
+}
+.token-type.STRING { 
+    background-color: #4f1a1a; 
+    color: #ffffff;
+}
+.token-type.NUMBER { 
+    background-color: #1a4f4f; 
+    color: #ffffff;
+}
+.token-type.CURLY_BRACKET_OPEN,
+.token-type.CURLY_BRACKET_CLOSE,
+.token-type.SQUARE_BRACKET_OPEN,
+.token-type.SQUARE_BRACKET_CLOSE,
+.token-type.PAR_OPEN,
+.token-type.PAR_CLOSE,
+.token-type.COLON,
+.token-type.SEMICOLON { 
+    background-color: #2a2a2a; 
+    color: #ffffff;
+    border: 1px solid var(--primary-blue);
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--darker-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-blue);
+    border-radius: 4px;
+}
+
+/* Alerts y mensajes */
+.alert-info {
+    background: var(--darker-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--primary-blue);
+}
+
+/* Estilos para la visualización del pensum */
+.pensum-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-top: 2rem;
+}
+
+.semester-column {
+    min-height: 400px;
+    border-right: 1px solid var(--border-color);
+    padding: 0.5rem;
+}
+
+.semester-title {
+    color: var(--text-primary);
+    text-align: center;
+    padding: 0.5rem;
+    border-bottom: 2px solid var(--primary-blue);
+    margin-bottom: 1rem;
+}
+
+.course-card {
+    background: var(--darker-bg);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    overflow: hidden;
+    height: 40px;
+}
+
+.course-code-box {
+    background: #ff7f50;  /* Color naranja */
+    color: white;
+    padding: 0.5rem;
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.course-name {
+    background: white;
+    color: var(--text-dark);
+    padding: 0.5rem 1rem;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.prereq-code-box {
+    background: #ff7f50;  /* Color naranja */
+    color: white;
+    padding: 0.5rem;
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Estilos para resaltado */
+.course-card.highlighted-main .course-code-box,
+.course-card.highlighted-main .prereq-code-box {
+    background: var(--primary-blue);
+}
+
+.course-card.highlighted-prereq .course-code-box,
+.course-card.highlighted-prereq .prereq-code-box {
+    background: var(--secondary-blue);
+}
+
+.course-info {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.course-codes {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.arrow {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+/* Agregar después de los estilos de la tabla */
+
+/* Contenedor con scroll para la tabla */
+.table-responsive {
+    max-height: 400px;  /* Altura máxima del contenedor */
+    overflow-y: auto;   /* Scroll vertical */
+    background: var(--card-bg);
+    border-radius: 4px;
+}
+
+.table-responsive table {
+    margin-bottom: 0;  /* Eliminar margen inferior de la tabla */
+}
+
+/* Mantener el encabezado fijo */
+.table-responsive thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--darker-bg);
+}
+
+/* Estilizar el scrollbar para tema oscuro */
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: var(--darker-bg);
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: var(--primary-blue);
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-blue);
+}
+
+/* Ajustar el card-body para el contenedor de la tabla */
+.card-body {
+    padding: 0;  /* Quitar padding para que la tabla ocupe todo el espacio */
+}
+
+.card-body .table-responsive {
+    border: 1px solid var(--border-color);
+}
+
+/* Ajustar la tabla para tema oscuro */
+.table {
+    margin: 0;
+    background: var(--card-bg);
+}
+
+.table td, 
+.table th {
+    padding: 12px;
+    border-color: var(--border-color);
+}
+
+.code-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--darker-bg);
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.course-code {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--primary-blue);
+    font-weight: bold;
+}
+
+.arrow {
+    color: var(--text-secondary);
+}
+
+.course-prereq {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--secondary-blue);
+}
+
+/* Ajustar el tamaño de las columnas */
+.semester-column {
+    min-width: 200px;
+    border-right: 1px solid var(--border-color);
+}
+
+.course-card {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.course-name {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+/* Agregar después de los estilos de course-card */
+
+.course-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.course-card.highlighted-main {
+    background: var(--primary-blue);
+    border-color: var(--secondary-blue);
+    box-shadow: 0 0 8px rgba(0, 102, 204, 0.5);
+}
+
+.course-card.highlighted-prereq {
+    background: var(--secondary-blue);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 8px rgba(0, 153, 255, 0.5);
+}
+
+.course-card.highlighted-main .course-name,
+.course-card.highlighted-prereq .course-name {
+    color: white;
+}
+
+.course-card.highlighted-main .course-code,
+.course-card.highlighted-prereq .course-code {
+    background: white;
+}
