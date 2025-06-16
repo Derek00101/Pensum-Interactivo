@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             tableBody.innerHTML = text;
 
-            if (result.errors.length === 0) {
+            if (result.error.length === 0) {
                 alert('Análisis completado sin errores.');
                 editor.innerHTML = result.editor; // Pintar resaltado
             } else {

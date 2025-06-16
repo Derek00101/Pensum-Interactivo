@@ -21,6 +21,7 @@ router.post('/analyzePensum', (req: Request, res: Response, next: NextFunction) 
                 column: token.column
             })),
             errors: errors,
+            editor: analyzer.getColors(), 
             careers: careers
         });
     } catch (error) {

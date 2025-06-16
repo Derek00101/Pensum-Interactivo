@@ -155,6 +155,7 @@ export class LexicalAnalyzer {
                         this.clean();
                         this.row++;
                         this.column = 1;
+                        this.colors += char; // Agregar el salto de línea
                     } else if (char === '#' && i === input.length - 1) {
                         // Error: cadena no cerrada al final del archivo
                         this.addError(Type.UNKNOWN, this.auxChar, this.row, this.column - this.auxChar.length + 1);
@@ -208,6 +209,9 @@ export class LexicalAnalyzer {
             }
             this.clean();
         }
+
+        console.log('Análisis completado. Tokens:', this.tokenList.length, 'Errores:', this.errorList.length);
+        console.log('HTML generado:', this.colors);
 
         return this.tokenList;
     }
