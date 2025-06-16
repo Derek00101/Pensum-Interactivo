@@ -96,30 +96,25 @@ export class LexicalAnalyzer {
                             this.column += 4;
                             continue;
                         default:
-                            if (/\d/.test(char)) {
-                                this.state = 11;
-                                this.addCharacter(char);
-                            } else if (/[A-Za-z]/.test(char)) {
-                                this.state = 1;
-                                this.addCharacter(char);
-                            } else if (char === '#' && i === input.length - 1) {
-                                // Fin del análisis
-                            } else if (char === ' ' || char === '\t' || char === '\n' || char === '\r') {
-                                // Ignorar espacios y saltos de línea
-                                if (char === ' ') {
-                                    this.column++;
-                                    this.colors += `${char}`;
-                                } else if (char === '\t') {
-                                    this.column += 4;
-                                } else {
-                                    this.row++;
-                                    this.column = 1;
-                                }
-                            } else {
-                                this.addError(Type.UNKNOWN, char, this.row, this.column);
-                                this.column++;
-                            }
-                            break;
+                        if (/\d/.test(char)) {
+                            this.state = 11;
+                            this.addCharacter(char);
+                        } 
+                        if (/[A-Za-z]/.test(char)) {
+                            this.state = 1;
+                            this.addCharacter(char);
+                            continue;
+                            
+                        } 
+                        if (char == '#' && i == input.length - 1) {
+                            // Fin del análisis
+
+                            console.log("Fin de analisis");
+                        } else {
+                            this.addError(Type.UNKNOWN, char, this.row, this.column);
+                            this.column++;
+                        }
+                        break;
                     }
                     break;
 
