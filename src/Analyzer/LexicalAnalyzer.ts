@@ -61,41 +61,49 @@ export class LexicalAnalyzer {
                     } else {
                         switch(char) {
                             case '{':
+                                this.state = 2;
                                 this.addToken(Type.CURLY_BRACKET_OPEN, char, this.row, this.column);
                                 this.colors += char;
                                 this.column++;
                                 break;
                             case '}':
+                                this.state = 3;
                                 this.addToken(Type.CURLY_BRACKET_CLOSE, char, this.row, this.column);
                                 this.colors += char;
                                 this.column++;
                                 break;
                             case '[':
+                                this.state = 4;
                                 this.addToken(Type.SQUARE_BRACKET_OPEN, char, this.row, this.column);
                                 this.colors += char;
                                 this.column++;
                                 break;
                             case ']':
+                                this.state = 5;
                                 this.addToken(Type.SQUARE_BRACKET_CLOSE, char, this.row, this.column);
                                 this.colors += char;
                                 this.column++;
                                 break;
                             case '(':
+                                this.state = 6;
                                 this.addToken(Type.PAR_OPEN, char, this.row, this.column);
                                 this.colors += char;
                                 this.column++;
                                 break;
                             case ')':
+                                this.state = 7;
                                 this.addToken(Type.PAR_CLOSE, char, this.row, this.column);
                                 this.colors += char;
                                 this.column++;
                                 break;
                             case ':':
+                                this.state = 8;
                                 this.addToken(Type.COLON, char, this.row, this.column);
                                 this.colors += char;
                                 this.column++;
                                 break;
                             case ';':
+                                this.state = 9;
                                 this.addToken(Type.SEMICOLON, char, this.row, this.column);
                                 this.colors += char;
                                 this.column++;
@@ -219,8 +227,8 @@ export class LexicalAnalyzer {
                     if (/\d/.test(char)) {
                         this.addCharacter(char);
                     } else {
-                        this.addToken(Type.NUMBER, this.auxChar);
-                        this.clean();
+                        this.addToken(Type.NUMBER, this.auxChar, this.row, this.column - this.auxChar.length);
+                        this.colors += `<span class="number">${this.auxChar}</span>`;
                         i--; // <-- Esto es clave: retrocede para que el delimitador se procese en el siguiente ciclo
                     }
                     break;

@@ -8,7 +8,7 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
 app.use(express.json());
-app.use(express.text());  // Asegúrate de que esta línea esté presente
+app.use(express.text());  
 app.use(express.urlencoded({ extended: true }));
 
 // Ruta principal para mostrar el editor del pensum

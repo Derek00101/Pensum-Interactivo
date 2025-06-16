@@ -6,7 +6,6 @@ import { StructureCareer } from '../utils/StructureCareer';
 
 const router = Router();
 
-// Cambiamos la ruta a /analyzePensum
 router.post('/analyzePensum', (req: Request, res: Response, next: NextFunction) => {
     try {
         const analyzer = new LexicalAnalyzer();
