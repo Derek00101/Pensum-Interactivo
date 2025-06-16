@@ -47,39 +47,71 @@ document.addEventListener('DOMContentLoaded', () => {
     // Analizar texto
     if (button) {
         button.addEventListener('click', async () => {
-            localStorage.clear();
+            try {
+                localStorage.clear();
 
-            let response = await fetch('http://localhost:4000/pensum/analyzePensum', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/plain'
-                },
-                body: editor.innerText
-            });
+                console.log('Enviando texto:', editor.innerText);
 
-            let result = await response.json();
+                let response = await fetch('http://localhost:4000/pensum/analyzePensum', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: editor.innerText
+                });
 
-            let text = '';
-            result.tokens.forEach((token, index) => {
-                text += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${token.row}</td>
-                    <td>${token.column}</td>
-                    <td>${token.lexeme}</td>
-                    <td>${token.type}</td>
-                </tr>
-                `;
-            });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-            tableBody.innerHTML = text;
+                let result = await response.json();
+                
+                // DEBUG: Veamos qué contiene exactamente la respuesta
+                console.log('Respuesta completa:', result);
+                console.log('Tokens:', result.tokens);
+                console.log('Errors:', result.errors);
+                console.log('Tipo de errors:', typeof result.errors);
+                console.log('Es array errors?', Array.isArray(result.errors));
+                console.log('Longitud de errors:', result.errors ? result.errors.length : 'undefined');
 
-            if (result.error.length === 0) {
-                alert('Análisis completado sin errores.');
-                editor.innerHTML = result.editor; // Pintar resaltado
-            } else {
-                alert('Se encontraron errores durante el análisis.');
-                localStorage.setItem('errors', JSON.stringify(result.errors));
+                let text = '';
+                if (result.tokens && Array.isArray(result.tokens)) {
+                    result.tokens.forEach((token, index) => {
+                        text += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${token.row}</td>
+                            <td>${token.column}</td>
+                            <td>${token.lexeme}</td>
+                            <td>${token.type}</td>
+                        </tr>
+                        `;
+                    });
+                }
+
+                tableBody.innerHTML = text;
+
+                // Verificación más robusta de errores
+                const hasErrors = result.errors && Array.isArray(result.errors) && result.errors.length > 0;
+                
+                console.log('¿Tiene errores?', hasErrors);
+
+                if (!hasErrors) {
+                    alert('Análisis completado sin errores.');
+                    if (result.editor) {
+                        editor.innerHTML = result.editor; // Pintar resaltado
+                        console.log('HTML del editor aplicado:', result.editor);
+                    } else {
+                        console.warn('No se recibió HTML para el editor');
+                    }
+                } else {
+                    alert(`Se encontraron ${result.errors.length} errores durante el análisis.`);
+                    localStorage.setItem('errors', JSON.stringify(result.errors));
+                    console.log('Errores encontrados:', result.errors);
+                }
+            } catch (error) {
+                console.error('Error en el análisis:', error);
+                alert('Error al procesar el análisis: ' + error.message);
             }
         });
     }
