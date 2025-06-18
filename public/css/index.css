@@ -85,13 +85,45 @@ body {
 
 /* Editor personalizado */
 #editor {
-    background: var(--darker-bg);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    font-family: 'Roboto Mono', monospace;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: auto; /* Permitir scroll horizontal si es necesario */
+    white-space: pre-wrap; /* Cambiar de pre a pre-wrap para permitir ajuste de línea */
+    word-wrap: break-word; /* Permitir que las palabras se rompan si son muy largas */
+    font-family: 'Consolas', 'Monaco', monospace;
     font-size: 14px;
-    padding: 1rem;
-    resize: none;
+    line-height: 1.6;
+    padding: 15px;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border: 1px solid #333;
+    border-radius: 4px;
+    width: 100%; /* Asegurar que tome todo el ancho disponible */
+}
+
+/* Preservar formato pero permitir ajuste */
+#editor, #editor * {
+    white-space: pre-wrap !important; /* Cambiar de pre a pre-wrap */
+    word-wrap: break-word !important;
+}
+
+/* Scrollbar personalizada para el editor */
+#editor::-webkit-scrollbar {
+    width: 10px;
+}
+
+#editor::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+#editor::-webkit-scrollbar-thumb {
+    background: #424242;
+    border-radius: 5px;
+}
+
+#editor::-webkit-scrollbar-thumb:hover {
+    background: #4f4f4f;
 }
 
 /* Tabla de tokens */
@@ -298,56 +330,67 @@ body {
     border-radius: 4px;
 }
 
-.table-responsive table {
-    margin-bottom: 0;  /* Eliminar margen inferior de la tabla */
+/* Estilos mejorados para las tablas */
+.table-responsive {
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    position: relative; /* Para el posicionamiento del encabezado */
 }
 
-/* Mantener el encabezado fijo */
-.table-responsive thead th {
+/* Fijar el encabezado de la tabla */
+.table thead {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
+}
+
+.table thead th {
     background: var(--darker-bg);
+    position: sticky;
+    top: 0;
+    border-bottom: 2px solid var(--primary-blue);
+    padding: 1rem;
+    /* Agregar un sombreado sutil para separar visualmente */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Estilizar el scrollbar para tema oscuro */
-.table-responsive::-webkit-scrollbar {
-    width: 8px;
+/* Ajustar el espacio entre filas */
+.table tbody tr {
+    border-bottom: 1px solid var(--border-color);
 }
 
-.table-responsive::-webkit-scrollbar-track {
+.table tbody td {
+    padding: 0.75rem;
+    background: var(--card-bg); /* Fondo para las celdas del cuerpo */
+}
+
+/* Específico para la tabla de errores */
+#errorTableContainer {
+    margin-bottom: 4rem;
+}
+
+#errorTableContainer .table thead th {
     background: var(--darker-bg);
-    border-radius: 4px;
+    border-bottom: 2px solid var(--error-red);
 }
 
-.table-responsive::-webkit-scrollbar-thumb {
-    background: var(--primary-blue);
-    border-radius: 4px;
+/* Agregar espacio para el scroll sin ocultar contenido */
+.table-responsive {
+    padding-top: 0; /* Quitar el padding superior */
 }
 
-.table-responsive::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary-blue);
-}
-
-/* Ajustar el card-body para el contenedor de la tabla */
-.card-body {
-    padding: 0;  /* Quitar padding para que la tabla ocupe todo el espacio */
-}
-
-.card-body .table-responsive {
-    border: 1px solid var(--border-color);
-}
-
-/* Ajustar la tabla para tema oscuro */
 .table {
-    margin: 0;
-    background: var(--card-bg);
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-.table td, 
-.table th {
-    padding: 12px;
-    border-color: var(--border-color);
+/* Asegurar que el contenido no se traslape */
+.table tbody tr:first-child td {
+    padding-top: 1.5rem; /* Espacio adicional en la primera fila */
 }
 
 .code-container {
@@ -423,4 +466,47 @@ body {
 .course-card.highlighted-main .course-code,
 .course-card.highlighted-prereq .course-code {
     background: white;
+}
+
+/* Estilos para la tabla de errores */
+.error-table {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.error-table th {
+    background-color: var(--darker-bg);
+    color: var(--text-primary);
+    padding: 1rem;
+}
+
+.error-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.error-card {
+    background: var(--card-bg);
+    border: 1px solid var(--error-red);
+}
+
+.error-card .card-header {
+    background: var(--error-red) !important;
+}
+
+/* Estilo para el botón de Error Report cuando hay errores */
+#errorReport.has-errors {
+    color: var(--error-red);
+    font-weight: bold;
+}
+
+/* Estilos específicos para la tabla de errores */
+#errorTableContainer {
+    border-color: var(--error-red);
+    margin-bottom: 4rem; /* Margen inferior más grande para la última tabla */
+}
+
+#errorTableContainer h3 {
+    color: var(--error-red);
+    margin-bottom: 1rem;
 }

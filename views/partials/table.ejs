@@ -1,18 +1,32 @@
-<table class="table table-bordered">
-  <thead>
-    <tr>
-        <th>No.</th>
-        <th>Fila</th>
-        <th>Columna</th>
-        <th>Lexema</th>
-        <th>Token</th>
+<div class="table-responsive mb-4">
+    <h3>Tabla de Tokens</h3>
+    <table class="table table-dark">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Fila</th>
+                <th>Columna</th>
+                <th>Lexema</th>
+                <th>Token</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
 
-    </tr>
-  </thead>
-</table>
-
-<div class="table-responsive">
-  <table class="table table-bordered">
-    <tbody id="tableBody">   </tbody>
-  </table>
+<!-- Agregar la tabla de errores -->
+<div class="table-responsive mt-4" id="errorTableContainer" style="display: none;">
+    <h3 class="text-danger">Errores Léxicos Encontrados</h3>
+    <table class="table table-dark">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Fila</th>
+                <th>Columna</th>
+                <th>Token</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody id="errorTableBody"></tbody>
+    </table>
 </div>

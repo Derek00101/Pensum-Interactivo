@@ -1,6 +1,6 @@
 import { Token, Type } from "./Token";
 
-export class LexicalAnalyzer {
+export class LexicalAnalyze {
     private row: number;
     private column: number;
     private auxChar: string;
@@ -27,115 +27,101 @@ export class LexicalAnalyzer {
         ];
         this.colors = '';
     }
-
     public scanner(input: string) {
-        // Limpia los arrays antes de analizar
-        this.tokenList = [];
-        this.errorList = [];
-        this.colors = '';
-        this.row = 1;
-        this.column = 1;
-        this.auxChar = '';
-        this.state = 0;
+        input += '#'; // Marca el final del análisis
 
-        input += '#';
         let char: string;
 
         for (let i = 0; i < input.length; i++) {
             char = input[i];
 
-            switch(this.state) {
-                case 0: // estado inicial
-                    switch(char) {
-                        case '{': 
+            switch (this.state) {
+                case 0: // Estado inicial
+                    switch (char) {
+                        case '{':
                             this.state = 2;
                             this.addCharacter(char);
                             break;
-                        case '}': 
+                        case '}':
                             this.state = 3;
                             this.addCharacter(char);
                             break;
-                        case ':': 
+                        case ':':
                             this.state = 4;
                             this.addCharacter(char);
                             break;
-                        case '[': 
+                        case '[':
                             this.state = 5;
                             this.addCharacter(char);
                             break;
-                        case ']': 
+                        case ']':
                             this.state = 6;
                             this.addCharacter(char);
                             break;
-                        case ';': 
+                        case ';':
                             this.state = 7;
                             this.addCharacter(char);
                             break;
-                        case '(': 
+                        case '(':
                             this.state = 8;
                             this.addCharacter(char);
                             break;
-                        case ')': 
-                            this.state = 9; 
+                        case ')':
+                            this.state = 9;
                             this.addCharacter(char);
                             break;
-                        case ',': // Case para la coma
-                            this.state = 13;
+                        case ',':
+                            this.state = 13; // Estado para procesar la coma
                             this.addCharacter(char);
                             break;
                         case '"': // Inicio de cadena
-                            this.state = 10; // Estado de cadena
+                            this.state = 10;
                             this.addCharacter(char);
                             break;
-                        case ' ':
+                        case ' ': // Espacio en blanco
                             this.column++;
-                            this.colors += `${char}`;
-                            continue;
-                        case '\n':
-                        case '\r':
+                            this.colors += char; // Mantener espacio exactamente como está
+                            break;
+                        case '\n': // Nueva línea
+                        case '\r': // Retorno de carro
                             this.row++;
                             this.column = 1;
-                            continue;
-                        case '\t':
+                            this.colors += char; // Mantener saltos de línea
+                            break;
+                        case '\t': // Tabulación
                             this.column += 4;
-                            continue;
+                            this.colors += char; // Mantener tabulaciones
+                            break;
                         default:
                             if (/\d/.test(char)) {
+                                // Estado para procesar números
+                                this.addCharacter(char);
                                 this.state = 11;
-                                this.addCharacter(char);
-                            } else if (/[A-Za-z]/.test(char)) {
-                                this.state = 1;
-                                this.addCharacter(char);
+                                
                                 continue;
-                            } else if (char == '#' && i == input.length - 1) {
+                            }
+
+                            if (/[a-zA-Z]/.test(char)) {
+
+                                this.addCharacter(char);
+                                this.state = 1;
+                                continue; // Continuar al siguiente carácter
+                                
+                            }
+
+                            if (char == '#' && i == input.length - 1) {
                                 // Fin del análisis
-                                console.log("Fin de analisis");
+                                console.log("Fin de análisis");
                             } else {
                                 this.addError(Type.UNKNOWN, char, this.row, this.column);
                                 this.column++;
                             }
+
                             break;
                     }
                     break;
 
-                case 1: // Palabra reservada
-                    if (/[A-Za-z0-9]/.test(char)) {
-                        this.addCharacter(char);
-                        continue;
-                    }
-                    // Procesar la palabra acumulada
-                    if (this.reservedWords.includes(this.auxChar)) {
-                        this.addToken(Type.RESERVED_WORDS, this.auxChar, this.row, this.column - this.auxChar.length);
-                        this.colors += `<span class="keyword">${this.auxChar}</span>`;
-                        this.clean();
-                        i--;
-                        continue;
-                    } 
-                    
-                    this.addError(Type.UNKNOWN, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.clean();
-                    i--; // Retroceder para procesar el carácter actual
-                    break;
+                
 
                 case 2: // Llave abierta
                     this.addToken(Type.CURLY_BRACKET_OPEN, this.auxChar, this.row, this.column - this.auxChar.length);
@@ -191,46 +177,46 @@ export class LexicalAnalyzer {
                         this.addCharacter(char);
                         continue;
                     }
-                    this.addCharacter(char);
-                    break;
-
-                case 11: // Número
-                    if (/\d/.test(char)) {
+                    
+                    // Solo permitir letras, números, espacios y puntos en strings
+                    if (/[a-zA-Z0-9\s\.]/.test(char)) {
                         this.addCharacter(char);
-                        continue;
                     } else {
-                        this.addToken(Type.NUMBER, this.auxChar, this.row, this.column - this.auxChar.length);
-                        this.colors += `<span class="number">${this.auxChar}</span>`;
-                        this.clean();
-                        i--; // Retroceder para procesar el carácter actual
+                        // Agregar el carácter especial como error
+                        this.addError(Type.UNKNOWN, char, this.row, this.column);
+                        this.column++;
                     }
                     break;
-                
+
                 case 12:  // Estado de cadena cerrada
                     this.addToken(Type.STRING, this.auxChar, this.row, this.column - this.auxChar.length);
                     this.colors += `<span class="string">${this.auxChar}</span>`;
                     this.clean();
                     i--; 
-                    break;
+                    break; 
 
-                case 13: // Estado de coma
+                case 11: // Estado para procesar números
+                    if (/\d/.test(char)) {
+                        this.addCharacter(char);
+                        continue;
+                    }
+                    this.addToken(Type.NUMBER, this.auxChar, this.row, this.column - this.auxChar.length);
+                    this.colors += `<span class="number">${this.auxChar}</span>`;
+                    this.clean();
+                    i--;
+                    break;
+                
+                case 13: // Estado para procesar la coma
                     this.addToken(Type.COMMA, this.auxChar, this.row, this.column - this.auxChar.length);
                     this.colors += `${this.auxChar}`;
                     this.clean();
                     break;
 
-                default:
-                    // Estado desconocido, resetear
-                    this.clean();
-                    i--;
-                    break;
-            }
-        }
-
-        // Si terminamos con un token pendiente, procesarlo
-        if (this.auxChar !== '' && this.state !== 0) {
-            switch(this.state) {
-                case 1: // Palabra pendiente
+                case 1: // Palabra reservada
+                    if (/[A-Za-z]/.test(char)) { 
+                        this.addCharacter(char);
+                        continue;
+                    }
                     if (this.reservedWords.includes(this.auxChar)) {
                         this.addToken(Type.RESERVED_WORDS, this.auxChar, this.row, this.column - this.auxChar.length);
                         this.colors += `<span class="keyword">${this.auxChar}</span>`;
@@ -238,23 +224,13 @@ export class LexicalAnalyzer {
                         this.addError(Type.UNKNOWN, this.auxChar, this.row, this.column - this.auxChar.length);
                         this.colors += this.auxChar;
                     }
-                    break;
-                case 10: // Cadena sin cerrar
-                    this.addError(Type.UNKNOWN, this.auxChar, this.row, this.column - this.auxChar.length + 1);
-                    this.colors += this.auxChar;
-                    break;
-                case 11: // Número pendiente
-                    this.addToken(Type.NUMBER, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `<span class="number">${this.auxChar}</span>`;
+                    this.clean();
+                    i--;
                     break;
             }
-            this.clean();
+
         }
 
-        console.log('Análisis completado. Tokens:', this.tokenList.length, 'Errores:', this.errorList.length);
-        console.log('HTML generado:', this.colors);
-
-        return this.tokenList;
     }
 
     private addCharacter(char: string) {
@@ -275,15 +251,15 @@ export class LexicalAnalyzer {
         this.errorList.push(new Token(type, lexeme, row, column));
     }
 
-    public getTokenList(): Token[] {
+    getTokenList(): Token[] {
         return this.tokenList;
     }
 
-    public getErrorList(): Token[] {
+    getErrorList(): Token[] {
         return this.errorList;
     }
 
-    public getColors(): string {
+    getColors(): string {
         return this.colors;
     }
 }

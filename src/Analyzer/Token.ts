@@ -1,5 +1,4 @@
 export enum Type {
-    UNKNOWN,
     RESERVED_WORDS,
     NUMBER,
     STRING,
@@ -10,7 +9,9 @@ export enum Type {
     PAR_OPEN,
     PAR_CLOSE,
     COLON,
-    SEMICOLON
+    COMMA,
+    SEMICOLON,
+    UNKNOWN
 }
 
 export class Token {

@@ -1,81 +1,119 @@
-import { Token, Type } from "../Analyzer/Token";
+import { Token, Type } from "../Analyzator/Token";
+import { Career } from "../models/Career";
 import { Course } from "../models/Course";
 import { Semester } from "../models/Semester";
-import { Career } from "../models/Career";
 
-export const StructureCareer = (tokens: Token[]): Career[] => {
+export const getCareers = (tokens: Token[]): Career[] => {
     let careers: Career[] = [];
-    let flags: boolean[] = [false, false, false, false, false, false];
+    let flags = {
+        carrera: false,
+        semestre: false,
+        curso: false,
+        area: false,
+        prereq: false
+    };
     let career: Career | null = null;
     let semester: Semester | null = null;
     let course: Course | null = null;
 
-    tokens.forEach((token: Token, index: number) => {
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+
+        // Procesar Carrera
         if (token.getLexeme() === 'Carrera') {
-            flags[0] = true;
+            flags.carrera = true;
+            continue;
+        }
+        
+        if (flags.carrera && token.getTypeToken() === Type.STRING) {
+            career = new Career(token.getLexeme().replace(/"/g, ''));
+            flags.carrera = false;
+            continue;
         }
 
-        if (flags[0] && token.getTypeToken() === Type.STRING) {
-            career = new Career(token.getLexeme().slice(1, -1));
-            flags[0] = false;
-        }
-
+        // Procesar Semestre
         if (token.getLexeme() === 'Semestre') {
-            flags[1] = true;
+            flags.semestre = true;
+            continue;
         }
 
-        if (flags[1] && token.getTypeToken() === Type.NUMBER) {
+        if (flags.semestre && token.getTypeToken() === Type.NUMBER) {
             semester = new Semester(Number(token.getLexeme()));
-            flags[1] = false;
+            flags.semestre = false;
+            continue;
         }
 
+        // Procesar Curso
         if (token.getLexeme() === 'Curso') {
-            flags[2] = true;
+            flags.curso = true;
+            continue;
         }
 
-        if (flags[2]) {
-            if (!flags[3] && !flags[4] && token.getTypeToken() === Type.NUMBER) {
-                course = new Course(token.getLexeme());
-            } else if (!flags[4] && token.getTypeToken() === Type.NUMBER && course) {
-                course.setArea(Number(token.getLexeme()));
-                flags[3] = false;
-            } else if (flags[4] && token.getTypeToken() === Type.NUMBER && course) {
-                course.addPrerequisite(Number(token.getLexeme()));
-            }
+        if (flags.curso && !course && token.getTypeToken() === Type.NUMBER) {
+            course = new Course(token.getLexeme()); // NO uses Number()
+            continue;
+        }
 
-            if (token.getTypeToken() === Type.STRING && course) {
-                course.setName(token.getLexeme().slice(1, -1));
+        // Procesar propiedades del curso
+        if (course) {
+            if (token.getLexeme() === 'Nombre') {
+                let j = i + 1;
+                while (j < tokens.length) {
+                    if (tokens[j].getTypeToken() === Type.STRING) {
+                        course.setName(tokens[j].getLexeme().replace(/"/g, ''));
+                        break;
+                    }
+                    j++;
+                }
             }
 
             if (token.getLexeme() === 'Area') {
-                flags[3] = true;
+                flags.area = true;
             }
 
-            if (flags[3] && token.getTypeToken() === Type.PAR_OPEN) {
-                flags[4] = true;
+            if (flags.area && token.getTypeToken() === Type.NUMBER) {
+                course.setArea(Number(token.getLexeme()));
+                flags.area = false;
+            }
+
+            if (token.getLexeme() === 'Prerrequisitos') {
+                flags.prereq = true;
+            }
+
+            if (flags.prereq && course && token.getTypeToken() === Type.NUMBER) {
+                course.addPrerequisite(token.getLexeme()); // NO uses Number()
+                continue;
             }
 
             if (token.getTypeToken() === Type.PAR_CLOSE) {
-                flags[4] = false;
-            }
-
-            if (token.getTypeToken() === Type.CURLY_BRACKET_CLOSE && course && semester) {
-                semester.addCourse(course);
-                flags[2] = false;
-                flags[1] = tokens[index + 1]?.getLexeme() !== 'Curso';
+                flags.prereq = false;
             }
         }
 
-        if (flags[1] && token.getTypeToken() === Type.CURLY_BRACKET_CLOSE && career && semester) {
-            career.addSemester(semester);
-            flags[1] = false;
+        // Cerrar estructuras
+        if (token.getTypeToken() === Type.CURLY_BRACKET_CLOSE) {
+            if (course) {
+                course.generateHtml();
+                if (semester) {
+                    semester.addCourse(course);
+                }
+                course = null;
+                flags.curso = false;
+            } else if (semester) {
+                semester.generateHtml();
+                if (career) {
+                    career.addSemester(semester);
+                }
+                semester = null;
+            }
         }
 
         if (token.getTypeToken() === Type.SQUARE_BRACKET_CLOSE && career) {
+            career.generateHtml();
             careers.push(career);
-            flags[0] = false;
+            career = null;
         }
-    });
+    }
 
     return careers;
 }
