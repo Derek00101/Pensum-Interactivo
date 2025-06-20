@@ -27,8 +27,15 @@ export class LexicalAnalyze {
         ];
         this.colors = '';
     }
+
     public scanner(input: string) {
-        input += '#'; // Marca el final del análisis
+        // Guardar el texto original para preservar el formato
+        const originalText = input;
+        input += '#';
+
+        // Inicializar el array de tokens coloreados
+        let coloredTokens: { lexeme: string, colored: string, position: number }[] = [];
+        this.colors = originalText;
 
         let char: string;
 
@@ -36,7 +43,7 @@ export class LexicalAnalyze {
             char = input[i];
 
             switch (this.state) {
-                case 0: // Estado inicial
+                case 0:
                     switch (char) {
                         case '{':
                             this.state = 2;
@@ -71,166 +78,211 @@ export class LexicalAnalyze {
                             this.addCharacter(char);
                             break;
                         case ',':
-                            this.state = 13; // Estado para procesar la coma
+                            this.state = 13;
                             this.addCharacter(char);
                             break;
-                        case '"': // Inicio de cadena
+                        case '"':
                             this.state = 10;
                             this.addCharacter(char);
                             break;
-                        case ' ': // Espacio en blanco
+                        case ' ':
                             this.column++;
-                            this.colors += char; // Mantener espacio exactamente como está
+                            this.colors += char;
                             break;
-                        case '\n': // Nueva línea
-                        case '\r': // Retorno de carro
+                        case '\n':
+                        case '\r':
                             this.row++;
                             this.column = 1;
-                            this.colors += char; // Mantener saltos de línea
+                            this.colors += '\n';
                             break;
-                        case '\t': // Tabulación
+                        case '\t':
                             this.column += 4;
-                            this.colors += char; // Mantener tabulaciones
+                            this.colors += '\t';
                             break;
                         default:
                             if (/\d/.test(char)) {
-                                // Estado para procesar números
+                                console.log('Encontrado posible número:', char);
                                 this.addCharacter(char);
                                 this.state = 11;
-                                
-                                continue;
-                            }
-
-                            if (/[a-zA-Z]/.test(char)) {
-
+                            } else if (/[a-zA-Z]/.test(char)) {
                                 this.addCharacter(char);
                                 this.state = 1;
-                                continue; // Continuar al siguiente carácter
-                                
-                            }
-
-                            if (char == '#' && i == input.length - 1) {
-                                // Fin del análisis
+                            } else if (char == '#' && i == input.length - 1) {
                                 console.log("Fin de análisis");
                             } else {
                                 this.addError(Type.UNKNOWN, char, this.row, this.column);
                                 this.column++;
                             }
-
                             break;
                     }
                     break;
 
-                
-
-                case 2: // Llave abierta
-                    this.addToken(Type.CURLY_BRACKET_OPEN, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
-                    this.clean();
-                    break;
-                    
-                case 3: // Llave cerrada
-                    this.addToken(Type.CURLY_BRACKET_CLOSE, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
-                    this.clean();
-                    break;
-                    
-                case 4: // Dos puntos
-                    this.addToken(Type.COLON, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
-                    this.clean();
-                    break;
-                    
-                case 5: // Corchete abierto
-                    this.addToken(Type.SQUARE_BRACKET_OPEN, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
-                    this.clean();
-                    break;
-                    
-                case 6: // Corchete cerrado
-                    this.addToken(Type.SQUARE_BRACKET_CLOSE, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
-                    this.clean();
-                    break;
-                    
-                case 7: // Punto y coma
-                    this.addToken(Type.SEMICOLON, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
-                    this.clean();
-                    break;
-                    
-                case 8: // Paréntesis abierto
-                    this.addToken(Type.PAR_OPEN, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
-                    this.clean();
-                    break;
-                    
-                case 9: // Paréntesis cerrado
-                    this.addToken(Type.PAR_CLOSE, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
-                    this.clean();
-                    break;
-                    
-                case 10: // Cadena
-                    if (char == '"') {
-                        this.state = 12; 
+                case 11:  // Estado para procesar números
+                    if (/\d/.test(char)) {
                         this.addCharacter(char);
-                        continue;
+                        console.log('Acumulando número:', this.auxChar);
+                    } else {
+                        console.log('Finalizando número:', this.auxChar);
+                        this.addToken(Type.NUMBER, this.auxChar, this.row, this.column - this.auxChar.length);
+                        coloredTokens.push({
+                            lexeme: this.auxChar,
+                            colored: `<span class="number">${this.auxChar}</span>`,
+                            position: i - this.auxChar.length
+                        });
+                        this.clean();
+                        i--;  // Retroceder para procesar el carácter actual
                     }
+                    break;
+
+                case 2:
+                    this.addToken(Type.CURLY_BRACKET_OPEN, this.auxChar, this.row, this.column - this.auxChar.length);
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
+                    this.clean();
+                    i--;
+                    break;
+
+                case 3:
+                    this.addToken(Type.CURLY_BRACKET_CLOSE, this.auxChar, this.row, this.column - this.auxChar.length);
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
+                    this.clean();
+                    i--;
+                    break;
                     
-                    // Solo permitir letras, números, espacios y puntos en strings
-                    if (/[a-zA-Z0-9\s\.]/.test(char)) {
+                case 4:
+                    this.addToken(Type.COLON, this.auxChar, this.row, this.column - this.auxChar.length);
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
+                    this.clean();
+                    i--;
+                    break;
+                    
+                case 5:
+                    this.addToken(Type.SQUARE_BRACKET_OPEN, this.auxChar, this.row, this.column - this.auxChar.length);
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
+                    this.clean();
+                    i--;
+                    break;
+                    
+                case 6:
+                    this.addToken(Type.SQUARE_BRACKET_CLOSE, this.auxChar, this.row, this.column - this.auxChar.length);
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
+                    this.clean();
+                    i--;
+                    break;
+                    
+                case 7:
+                    this.addToken(Type.SEMICOLON, this.auxChar, this.row, this.column - this.auxChar.length);
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
+                    this.clean();
+                    i--;
+                    break;
+                    
+                case 8:
+                    this.addToken(Type.PAR_OPEN, this.auxChar, this.row, this.column - this.auxChar.length);
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
+                    this.clean();
+                    i--;
+                    break;
+                    
+                case 9:
+                    this.addToken(Type.PAR_CLOSE, this.auxChar, this.row, this.column - this.auxChar.length);
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
+                    this.clean();
+                    i--;
+                    break;
+                    
+                case 10:
+                    if (char == '"') {
+                        this.state = 12;
+                        this.addCharacter(char);
+                    } else if (/[a-zA-Z0-9\s\.]/.test(char)) {
                         this.addCharacter(char);
                     } else {
-                        // Agregar el carácter especial como error
                         this.addError(Type.UNKNOWN, char, this.row, this.column);
                         this.column++;
                     }
                     break;
 
-                case 12:  // Estado de cadena cerrada
+                case 12:
                     this.addToken(Type.STRING, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `<span class="string">${this.auxChar}</span>`;
-                    this.clean();
-                    i--; 
-                    break; 
-
-                case 11: // Estado para procesar números
-                    if (/\d/.test(char)) {
-                        this.addCharacter(char);
-                        continue;
-                    }
-                    this.addToken(Type.NUMBER, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `<span class="number">${this.auxChar}</span>`;
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `<span class="string">${this.auxChar}</span>`,
+                        position: i - this.auxChar.length
+                    });
                     this.clean();
                     i--;
                     break;
                 
-                case 13: // Estado para procesar la coma
+                case 13:
                     this.addToken(Type.COMMA, this.auxChar, this.row, this.column - this.auxChar.length);
-                    this.colors += `${this.auxChar}`;
+                    coloredTokens.push({
+                        lexeme: this.auxChar,
+                        colored: `${this.auxChar}`,
+                        position: i - this.auxChar.length
+                    });
                     this.clean();
                     break;
 
-                case 1: // Palabra reservada
-                    if (/[A-Za-z]/.test(char)) { 
+                case 1: 
+                    if (/[A-Za-z0-9]/.test(char)) {
                         this.addCharacter(char);
-                        continue;
-                    }
-                    if (this.reservedWords.includes(this.auxChar)) {
-                        this.addToken(Type.RESERVED_WORDS, this.auxChar, this.row, this.column - this.auxChar.length);
-                        this.colors += `<span class="keyword">${this.auxChar}</span>`;
                     } else {
-                        this.addError(Type.UNKNOWN, this.auxChar, this.row, this.column - this.auxChar.length);
-                        this.colors += this.auxChar;
+                        if (this.reservedWords.includes(this.auxChar)) {
+                            this.addToken(Type.RESERVED_WORDS, this.auxChar, this.row, this.column - this.auxChar.length);
+                            coloredTokens.push({
+                                lexeme: this.auxChar,
+                                colored: `<span class="keyword">${this.auxChar}</span>`,
+                                position: i - this.auxChar.length
+                            });
+                        } else {
+                            this.addError(Type.UNKNOWN, this.auxChar, this.row, this.column - this.auxChar.length);
+                            this.colors += this.auxChar;
+                        }
+                        this.clean();
+                        i--;
                     }
-                    this.clean();
-                    i--;
                     break;
             }
-
         }
 
+        // Aplicar el coloreado manteniendo el formato original
+        for (const token of coloredTokens.reverse()) {
+            this.colors = this.colors.substring(0, token.position) + 
+                         token.colored + 
+                         this.colors.substring(token.position + token.lexeme.length);
+        }
     }
 
     private addCharacter(char: string) {

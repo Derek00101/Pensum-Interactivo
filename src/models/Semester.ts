@@ -24,25 +24,21 @@ export class Semester {
     }
 
     generateHtml() {
-
         for (let i = 0; i < 6; i++) {
             this.html[i] = `
                 <td>
                     ${this.getCourseArea(i + 1)}    
                 </td>
             `;
+            console.log(`Celda área ${i + 1} del semestre ${this.num}:`, this.html[i]);
         }
     }
 
-    private getCourseArea(Area: number): string {
+    private getCourseArea(area: number): string {
         let htmlCourse = '';
 
         for (const course of this.courses) {
-            // Convertir ambos números al mismo formato antes de comparar
-            const courseArea = Number(course.getArea());
-            const areaToCompare = Number(Area);
-            
-            if (courseArea === areaToCompare) {
+            if (course.getArea() == area){
                 htmlCourse += `${course.getHtml()}\n`;
             }
         }

@@ -23,36 +23,36 @@ export class Career {
         return this.semesters;
     }
 
-    generateHtml(){
+    generateHtml() {
         this.html = `
             <h1> Ingenieria: ${this.name}</h1>
 
             <table id="${this.name}" class="table_pensum table table-striped">
                 <thead>
                     <tr>
-                        ${this.semesters.map((semester) => {
-                            return `<th>Semestre ${semester.getNum()} </th>`;
+                        ${this.semesters.map((item) => {
+                            return `<th>Semestre ${item.getNum()} </th>`;
                         }).join('\n')}
                     </tr>
                 </thead> 
                 <tbody>
         `;
 
+        console.log("Semestres en carrera:", this.semesters);
         for (let i = 0; i < 6; i++) {
-            
             this.html += `<tr>`;
-                    
             for (const semester of this.semesters) {
+                console.log(`HTML del semestre ${semester.getNum()} fila ${i}:`, semester.getHtml()[i]);
                 this.html += `${semester.getHtml()[i]}`;
             }
-
             this.html += `</tr>\n`;
         }
 
         this.html += `
             </tbody>
-            </table>
-        `;
+        </table>
+        `;  
+        console.log("HTML final de la carrera:", this.html);
     }
 
     getHtml(): string {

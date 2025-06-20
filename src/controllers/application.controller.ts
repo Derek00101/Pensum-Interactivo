@@ -11,10 +11,13 @@ export const analyze = (req: Request, res: Response) => {
     const body = req.body;
     
     let scanner: LexicalAnalyze = new LexicalAnalyze();
-
     scanner.scanner(body);
 
-    let careers: Career[] = getCareers(scanner.getTokenList());
+    // Solo genera carreras si NO hay errores léxicos
+    let careers: Career[] = [];
+    if (scanner.getErrorList().length === 0) {
+        careers = getCareers(scanner.getTokenList());
+    }
 
     res.json({
         "tokens": scanner.getTokenList(),

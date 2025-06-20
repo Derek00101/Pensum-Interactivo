@@ -5,8 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let id = pensum.classList.item(0);
 
     let carrera = JSON.parse(localStorage.getItem(`pensum${id}`));
+    console.log('Carrera cargada desde localStorage:', carrera);
 
-    if (carrera !== null){
+    if (carrera !== null && carrera.html) {
         // Renderizar el pensum
         pensum.innerHTML = carrera.html;
 
@@ -55,5 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
             curso.addEventListener('click', getCurso);
         }
 
+    } else {
+        pensum.innerHTML = '<div style="color:red;">No se pudo cargar el pensum. Verifica que el análisis fue exitoso y que el HTML está presente en localStorage.</div>';
+        console.error('No se encontró el HTML del pensum o el objeto carrera es nulo:', carrera);
     }
 });

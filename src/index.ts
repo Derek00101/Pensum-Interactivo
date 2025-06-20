@@ -1,17 +1,16 @@
 import express from "express";
-import path from "path";
-import appRouter from "./routes/application.route";
+import router from "./routes/application.route";
 
 const app = express();
 const PORT = 3001;
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "../views"));
 
 app.use(express.static('public'));
 app.use(express.text());
+app.use(express.json());
 
-app.use(appRouter);
+app.use(router);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

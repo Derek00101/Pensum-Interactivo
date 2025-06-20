@@ -2,16 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const button = document.getElementById('analyze');
     const editor = document.getElementById('editor');
-    const tableBody = document.getElementById('tableBody');
+    const table = document.getElementById('tableBody');
     const clear = document.getElementById('clear');
     const open = document.getElementById('open');
     const save = document.getElementById('save');
     const errorReportBtn = document.getElementById('errorReport');
-    const pensums = document.getElementById('pensum');
+    const pensums = document.getElementById('pensums');
+    let errorTableBody = document.getElementById('errorTableBody');
+    let errorTableContainer = document.getElementById('errorTableContainer');
 
     clear.addEventListener('click', () => {
         editor.innerHTML = ''; // Limpia el contenido del editor
-        tableBody.innerHTML = ''; // Limpia la tabla de tokens y errores
+        table.innerHTML = ''; // Limpia la tabla de tokens y errores
     });
 
     open.addEventListener('click', () => {
@@ -49,126 +51,85 @@ document.addEventListener('DOMContentLoaded', () => {
         download.click();
     });
 
-    // Modifica el evento click del botón analyze
     button.addEventListener('click', async () => {
+
         localStorage.clear(); // Limpia el almacenamiento local antes de cada análisis
+        pensums.innerHTML = ''; // Limpia el contenedor de pensums
         
-        const pensums = document.getElementById('pensums'); 
-        if (pensums) {
-            pensums.innerHTML = '';
-        }
-        
-        try {
-            if (!editor.innerText.trim()) {
-                alert('El editor está vacío');
-                return;
-            }
+        let response = await fetch('http://localhost:3001/pensum/analyzePensum', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain',
+            },
+            body: editor.innerText
+        });
 
-            let response = await fetch('/pensum/analyzePensum', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/plain'
-                },
-                body: editor.innerText
+        let result = await response.json();
+
+        let textTable = ``;
+
+        result.tokens.forEach((token, index) => {
+            textTable += `
+            <tr>
+                <td> ${index + 1}</td>
+                <td> ${token.typeTokenString}</td>
+                <td> ${token.lexeme}</td>
+                <td> ${token.row}</td>
+                <td> ${token.column}</td>
+            </tr>
+            `;
+            
+        });
+
+        table.innerHTML = textTable;    
+
+        if (result.errors.length === 0) {
+
+            alert('No se encontraron errores');
+
+            editor.innerHTML = result.editor; // Actualiza el editor con el contenido procesado
+
+            console.log(result.careers);
+
+            result.careers.forEach(( _, index) => {
+                pensums.innerHTML += `<a class="btn btn-success btn_user" href="${'/pensum/' + (index + 1)}" target="_blank"> ${'Pensum: ' + (index + 1)}</a>\n`;
             });
 
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-
-            let result = await response.json();
-            
-            // Mostrar el resultado completo en la consola
-            console.log('Respuesta completa:', {
-                tokens: result.tokens.map(token => ({
-                    typeToken: token.typeToken,
-                    typeTokenString: token.typeTokenString,
-                    lexeme: token.lexeme,
-                    row: token.row,
-                    column: token.column
-                })),
-                errors: result.errors.map(error => ({
-                    typeToken: error.typeToken,
-                    typeTokenString: error.typeTokenString,
-                    lexeme: error.lexeme,
-                    row: error.row,
-                    column: error.column
-                })),
-                editor: result.editor,
-                careers: result.careers
+            // Guardar el objeto completo de la carrera (incluyendo el HTML) en localStorage
+            result.careers.forEach((career, index) => {
+                localStorage.setItem(`pensum${index + 1}`, JSON.stringify(career));
             });
-            
-            // Actualizar el editor con el texto coloreado
-            if (result.editor) {
-                editor.innerHTML = result.editor;
-            }
 
-            // Limpiar y actualizar la tabla
-            tableBody.innerHTML = '';
-            if (result.tokens) {
-                result.tokens.forEach((token, index) => {
-                    const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${token.row}</td>
-                        <td>${token.column}</td>
-                        <td>${token.lexeme}</td>
-                        <td>${token.typeTokenString}</td>
-                    </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                });
-            }
+        } else {
+            alert('Se encontraron errores, revisa la tabla de tokens');
 
-            // Actualizar tabla de errores
-            const errorTableContainer = document.getElementById('errorTableContainer');
-            const errorTableBody = document.getElementById('errorTableBody');
-            errorTableBody.innerHTML = '';
+            // Guarda los errores en el almacenamiento local
+            localStorage.setItem('errors', JSON.stringify(result.errors));
 
-            if (result.errors && result.errors.length > 0) {
+            if (result.errors.length > 0) {
+                // Mostrar la tabla de errores
                 errorTableContainer.style.display = 'block';
-                result.errors.forEach((error, index) => {
-                    const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${error.row}</td>
-                        <td>${error.column}</td>
-                        <td><code class="text-danger">"${error.lexeme}"</code></td>
-                        <td>Token no reconocido</td>
-                    </tr>
+                let errorRows = '';
+                result.errors.forEach((error, idx) => {
+                    errorRows += `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td>${error.row}</td>
+                            <td>${error.column}</td>
+                            <td><code class="text-danger">"${error.lexeme}"</code></td>
+                            <td>Token no reconocido</td>
+                        </tr>
                     `;
-                    errorTableBody.innerHTML += row;
                 });
-                alert(`Se encontraron ${result.errors.length} errores en el análisis.`);
+                errorTableBody.innerHTML = errorRows;
             } else {
+                // Ocultar la tabla de errores si no hay errores
                 errorTableContainer.style.display = 'none';
-                alert('Análisis completado sin errores.');
-
-                editor.innerHTML = result.editor;
-
-                // Verificar que result.careers existe y es un array
-                if (result.careers && Array.isArray(result.careers)) {
-                    result.careers.forEach((career, index) => {
-                        if (pensums) {
-                            pensums.innerHTML += `
-                                <a class="btn btn-success btn_user m-2" 
-                                   href="/pensum/${index + 1}" 
-                                   target="_blank">
-                                    Ver Pensum ${index + 1}
-                                </a>`;
-                        }
-                        
-                        // Modificar cómo guardamos en localStorage
-                        if (career) {
-                            localStorage.setItem(`pensum${index + 1}`, JSON.stringify(career));
-                        }
-                    });
-                }
+                errorTableBody.innerHTML = '';
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al realizar el análisis');
+
         }
+        
     });
 
     errorReportBtn.addEventListener('click', () => {

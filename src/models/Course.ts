@@ -4,7 +4,7 @@ export class Course {
     private name: string;
     private area: number;
     private prerequisites: string[];
-    private html: string;
+    public html: string;
 
     constructor(code: string) {
         this.code = code;
@@ -43,13 +43,15 @@ export class Course {
     }
 
     generateHtml() {
-        // Crear div contenedor del curso con el ID
         this.html = `
-            <div id="${this.code}" class="course">
-                <div class="course-code">${this.code}</div>
-                <div class="course-name">${this.name}</div>
-                <div class="course-prereqs">
-                    ${this.prerequisites.map(prereq => `<span>${prereq}</span>`).join('')}
+            <div id="${this.code}">
+                <span class="codigo">${this.code}</span>
+                <span>${this.name}</span>
+                <span class="pre">
+                    ${this.prerequisites.map((item) => {
+                        return `<p>${item}</p>`;
+                    }).join('\n\t')}
+                </span> 
                 </div>
             </div>
         `;
